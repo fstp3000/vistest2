@@ -92,12 +92,19 @@ function updatedata(){
     len = Object.keys(tmp_data).length
 		
 		nodes = data.nodes;
+		if (Object.keys(nodes).length > 20){
+				nodes = nodes.slice(-20, -1)
+				nodes.unshift({"id": "repos", "label": "repository"});
+		}
 		console.log(nodes);
 		for (i = 0; i < len; i++) { 
 				nodes.push({id: tmp_data[i].id , label : tmp_data[i].label})
 				//console.log(nodes);
 		}
 		edges= data.edges
+		if (Object.keys(edges).length > 20){
+				edges = edges.slice(-20, -1)
+		}
 		console.log(edges);
 		if (edges==undefined){
 				edges = [];
