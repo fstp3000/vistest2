@@ -21,10 +21,7 @@
       var network;
       var timer = setInterval(function(data, callback) {
                 $.post("/api/update",data, function(result){
-                    //callback(result)
-                    //data = result
                     network.setData(result);
-					//network.updateData(result);
                 })      
             }, 10000);
       var addNode = function(data, callback){
@@ -106,9 +103,6 @@
         // add network
         var container = document.getElementById('graph');
         // init network
-		//console.log("init");
-		//console.log(data);
-		//console.log(data.options);
         network = new vis.Network(container, data, data.options);
         });
  

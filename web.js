@@ -56,32 +56,15 @@ setInterval(async function htc_api() {
 				};
 		}
     
-		//console.log(count);
   } catch (error) {
     console.log(error.message);
   }
 },5000);
 
-function getRandom(min,max){
-    return Math.floor(Math.random()*(max-min+1))+min;
-};
-
-
-
-function getdata(){
-
-}
 
 function createdata(){
 		nodes=[{"id": 0, "label": "repository"}]
-		//var i;
-		//for (i = 0; i < 10; i++) { 
-		//nodes.push({id: i,label:i})
-		//}
 		edges=[]
-		//for (i = 0; i < 10; i++) { 
-		//edges.push({id: i,from:i, to:getRandom(0,i-1)})
-		//}
 		data= {nodes: nodes,
 				  edges: edges, 
 				  options:{}
@@ -95,18 +78,10 @@ function updatedata(){
     len = Object.keys(tmp_data).length
 		
 		nodes = data.nodes;
-		//nodes = nodes + tmp_data;
 		for (i = 0; i < len; i++) { 
 				nodes.push({id: tmp_data[i].id , label : tmp_data[i].label})
 				console.log(nodes);
-		}
-		//console.log(typeof(nodes));
-		//length = Object.keys(nodes).length;
-		//var i;
-		//for (i = 0; i < 1; i++) { 
-		//nodes.push({id: length, label: length})
-		//}
-		
+
 		edges= data.edges
 		if (edges==undefined){
 				edges = [];
@@ -115,7 +90,6 @@ function updatedata(){
 				edges.push({id: old_len + i ,from: tmp_data[i].id, to: 0})
 				console.log(edges);
 		}
-		//
 		tmp_data=[]
 		data = {nodes: nodes,
 				  edges: edges, 
@@ -128,7 +102,6 @@ createdata();
 
 app.post('/api/node', function(req, res){
 		var newNode = req.body;
-		//console.log(newNode);
 		var foundNode = _.find(data.nodes, function(node){
 				return node.label === newNode.label
 		})
@@ -138,14 +111,12 @@ app.post('/api/node', function(req, res){
 				return;
 		}
 		data.nodes.push(newNode);
-		//console.log('here')
 		res.send(newNode).end();
 })
 
 app.put('/api/node', function(req, res){
 		var updatedNode = req.body;
 		var realizeNode;
-		//console.log(updatedNode);
 		_.each(data.nodes, function(node){
 				console.log(node.id)
 				console.log(updatedNode.id)
@@ -230,7 +201,6 @@ app.delete("/api/edge", function(req, res){
 		});
 
 app.post('/api/update', function(req, res){
-		//console.log(req);
 		updatedata(req.body);
 		res.send(data).end();
 });
