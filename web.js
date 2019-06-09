@@ -6,8 +6,9 @@ var _ = require("underscore");
 var uuid = require("uuid-v4");
 var rp = require('request-promise');
 var count = 0;
-var old_count = 0;
-
+var old_count = 90;
+//var dirID = "0xF1b3a932Fd75D15Fe3205De8C7F10224c8228A74"
+var dirID = "0x31950EdF2AB884CC01a0613d099796439A509C4D"
 var data = {};
 var tmp_data = []
 
@@ -27,30 +28,43 @@ setInterval(async function htc_api() {
       method: 'GET',
       uri: 'https://dxdl.deepq.com:5000/entry/count',
       qs: {
-	   directoryID: "0xF1b3a932Fd75D15Fe3205De8C7F10224c8228A74",
+				directoryID: dirID,
       }
     };
     res = await rp(options);
 		count = parseInt(JSON.parse(res)["result"]["entryCount"]);
 		console.log(count);	
+		
 		if (count > old_count){
 				console.log('Step7:Retrieve a data entry in a directory by entry index');
 				try {
-						for (i = old_count + 1 ; i < count; i++) {
+						for (i = old_count + 1 ; i < count && i < old_count + 6 ; i++) {
 								options = {
 										method: 'GET',
 										uri: 'https://dxdl.deepq.com:5000/entry/index',
 										qs: {
-												directoryID: "0xF1b3a932Fd75D15Fe3205De8C7F10224c8228A74",
+												directoryID: dirID,
 												index: i
 										}
 								};
+								console.log(i);
 								res = await rp(options);
-								tmp_data.push({"id": i+1, "label": JSON.parse(res)["result"]["dataDescription"]});
-								console.log(tmp_data);
-								console.log(typeof(tmp_data));
+								label = JSON.parse(res)["result"]["dataCertificate"];
+								if (label.substring(0,4)=="test" || label.substring(0,3)=="yes"){
+										console.log("fail");
+										continue;
+								}
+								//id = parseInt(label.substring(3));//dsa123456789
+								id = uuid();
+								tmp_data.push({"id": id, "label": label});
+								//console.log(typeof(tmp_data));
 								};
-								old_count = count;
+								if (count - old_count < 5){
+										old_count = count;
+								} else {
+										old_count += 5;
+								}
+
 				} catch (error) {
 						console.log(error.message);
 				};
@@ -63,7 +77,7 @@ setInterval(async function htc_api() {
 
 
 function createdata(){
-		nodes=[{"id": 0, "label": "repository"}]
+		nodes=[{"id": "repos", "label": "repository"}]
 		edges=[]
 		data= {nodes: nodes,
 				  edges: edges, 
@@ -78,23 +92,26 @@ function updatedata(){
     len = Object.keys(tmp_data).length
 		
 		nodes = data.nodes;
+		console.log(nodes);
 		for (i = 0; i < len; i++) { 
 				nodes.push({id: tmp_data[i].id , label : tmp_data[i].label})
-				console.log(nodes);
-
+				//console.log(nodes);
+		}
 		edges= data.edges
+		console.log(edges);
 		if (edges==undefined){
 				edges = [];
 		}
 		for (i = 0; i < len; i++) { 
-				edges.push({id: old_len + i ,from: tmp_data[i].id, to: 0})
-				console.log(edges);
+				//edges.push({id: old_len + i ,from: tmp_data[i].id, to: "repos"})
+				edges.push({id: uuid() ,from: tmp_data[i].id, to: "repos"})
+				//console.log(edges);
 		}
 		tmp_data=[]
 		data = {nodes: nodes,
-				  edges: edges, 
-				  options:{}
-				}
+				    edges: edges, 
+				    options:{}
+				   }
 		return true
 };
 createdata();
