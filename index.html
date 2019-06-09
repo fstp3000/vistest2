@@ -1,0 +1,117 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Blockchain</title>
+    <script type="text/javascript" src="vis/dist/vis.min.js"></script>
+    <link href="vis/dist/vis.min.css" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="jquery/dist/jquery.js"></script>
+    <style type="text/css">
+      #graph {
+        width: 1200px;
+        height: 650px;
+        border: 1px solid lightgray;
+    margin: 0 auto;
+      }
+    </style>
+  </head>
+<body>
+  <div id="graph"></div>
+ 
+  <script type="text/javascript">
+      var network;
+      var timer = setInterval(function(data, callback) {
+                $.post("/api/update",data, function(result){
+                    //callback(result)
+                    //data = result
+                    network.setData(result);
+					//network.updateData(result);
+                })      
+            }, 10000);
+      var addNode = function(data, callback){
+            var label = prompt("Please enter a label:");
+            if(!label){
+                return;
+            }
+   
+            data.label = label;
+ 
+            $.post("/api/node", data, function(result){
+                callback(result)
+            })      
+            };
+      var editNode = function(data, callback){
+            var label = prompt("Please enter a label:", data.label);
+            if(!label){
+                return;
+            }
+            data.label = label;
+   
+            $.ajax({
+                method: "put",
+                url: "/api/node",
+                data: data,
+                success: function(result){
+                    callback(result);
+                    }
+                });
+            };
+      var deleteNode = function(data, callback){
+            $.ajax({
+                method: "delete",
+                url: "/api/node",
+                data: {node: data.nodes[0]},
+                success: function(result){
+                    callback(result);
+                    }
+                });
+            };
+     
+      var addEdge = function(data, callback){
+            $.post("/api/edge", data, function(result){
+                callback(result)
+            })      
+      };
+      var editEdge = function(data, callback){
+            $.ajax({
+                method: "put",
+                url: "/api/edge",
+                data: data,
+                success: function(result){
+                    callback(result);
+                    }
+                });
+            };
+     
+      var deleteEdge = function(data, callback){
+            $.ajax({
+                method: "delete",
+                url: "/api/edge",
+                data: {edge: data.edges[0]},
+                success: function(result){
+                    callback(result);
+                    }
+                });
+            };
+     
+            //jquery
+    $.get("/api",function(data){
+            data.options.manipulation = {
+            addNode: addNode,
+            editNode: editNode,
+            deleteNode: deleteNode,
+            addEdge: addEdge,
+            editEdge: editEdge,
+            deleteEdge: deleteEdge,
+                };
+        // add network
+        var container = document.getElementById('graph');
+        // init network
+		//console.log("init");
+		//console.log(data);
+		//console.log(data.options);
+        network = new vis.Network(container, data, data.options);
+        });
+ 
+  </script>
+</body>
+</html>
